@@ -9,47 +9,21 @@ flat in float dptVF;
 
 void main() {
 
-	/*if(dptVF<-10)
-		discard;
+	//if(dptVF<-10)
+	//	discard;
 
 	vec4 dptvec = texelFetch(DptMap, ivec2(int(gl_FragCoord.x),int(gl_FragCoord.y)), 0);
 	float mindpt = dptvec.z;
 	
-	//if(mindpt>0.69 && mindpt<0.71)
-	//if(mindpt<0.5)
-	if(mindpt>0.5)
-	{
-		out_color = vec4(1.0, 1.0, 0.0, 1.0);
-		return;
-	}
-
-	out_color = vec4(1.0, 1.0, 0.0, 1.0);
-	return;
-
 	
-	//float thres=0.01;
-	float thres=0.05;
-	//float thres=5;
+	float thres=0.1;
+	//float thres=0.000001;	//blend nothing
+	//float thres=50;		//blend everying
 	
 	if(dptVF-mindpt<thres)
 		out_color = vec4(colorVF, 1.0);
 	else
-		discard;*/
-
-	vec4 dptvec = texelFetch(DptMap, ivec2(int(gl_FragCoord.x),int(gl_FragCoord.y)), 0);
-	float mindpt = dptvec.z;
-	
-	//if(mindpt<0.6)
-	//if(mindpt>0.8)
-	if(mindpt>0.69 && mindpt<0.71)
-	{
-		out_color = vec4(0.0, 1.0, 0.0, 1.0);
-		return;
-	}
-	
-	out_color = vec4(1.0, 1.0, 0.0, 1.0);
-
-	//out_color = vec4(colorVF, 1.0);
+		discard;
 
 }
 

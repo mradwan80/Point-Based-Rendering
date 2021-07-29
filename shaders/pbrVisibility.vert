@@ -19,7 +19,7 @@ void main()
 	vec4 view_pos = vm_matrix * pos4;
 	dpt = -view_pos.z;
 	
-	gl_PointSize=5;
+	gl_PointSize=8;
 
 }
 

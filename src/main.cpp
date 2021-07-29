@@ -215,7 +215,7 @@ int main()
 		glEnable(GL_DEPTH_TEST);
 		glDisable(GL_BLEND);
 
-		/*glUseProgram(VisibilitySh.GetHandle());
+		glUseProgram(VisibilitySh.GetHandle());
 		glBindFramebuffer(GL_FRAMEBUFFER, dptFbo); //set the fbo
 		glDrawBuffer(GL_COLOR_ATTACHMENT0);
 		glClearDepth(1.0);
@@ -230,16 +230,8 @@ int main()
 		glEnableVertexAttribArray(1);
 		glUniformMatrix4fv(glGetUniformLocation(VisibilitySh.GetHandle(), "vm_matrix"), 1, GL_FALSE, glm::value_ptr(vmMat));
 		glUniformMatrix4fv(glGetUniformLocation(VisibilitySh.GetHandle(), "pvm_matrix"), 1, GL_FALSE, glm::value_ptr(pvmMat));
-		glDrawArrays(GL_POINTS, 0, pnum);*/
-
-		//for testing
-		glBindFramebuffer(GL_FRAMEBUFFER, dptFbo); //set the fbo
-		glDrawBuffer(GL_COLOR_ATTACHMENT0);
-		glClearDepth(1.0);
-		glClearColor(1.0, 1.0, 0.7, 1.0);
-		glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-		//
-		
+		glDrawArrays(GL_POINTS, 0, pnum);
+	
 
 		//Blending
 
@@ -271,18 +263,6 @@ int main()
 		glDrawArrays(GL_POINTS, 0, pnum);
 
 		glDisable(GL_BLEND);
-
-		//for testing
-		/*
-		//glBindFramebuffer(GL_FRAMEBUFFER, accFbo);
-		glBindFramebuffer(GL_FRAMEBUFFER, dptFbo);
-		glDrawBuffer(GL_COLOR_ATTACHMENT0);
-		glClearDepth(1.0);
-		glClearColor(0.0, 0.0, 1.0, 1.0);
-		glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-		*/
-		//
-
 
 		glActiveTexture(GL_TEXTURE2);		glBindTexture(GL_TEXTURE_2D, accTex);
 		glActiveTexture(GL_TEXTURE1);		glBindTexture(GL_TEXTURE_2D, dptTex);
