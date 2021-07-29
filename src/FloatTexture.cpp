@@ -22,6 +22,12 @@ void FloatTexture::Bind()
     glBindTexture(GL_TEXTURE_2D, handle);
 }
 
+void FloatTexture::AttachImageTexture(int im)
+{
+    glActiveTexture(GL_TEXTURE0+im);
+    Bind();
+}
+
 void FloatTexture::Unbind()
 {
     glBindTexture(GL_TEXTURE_2D, 0);

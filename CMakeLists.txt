@@ -28,6 +28,7 @@ src/main.h
 src/main.cpp
 src/Shader.cpp
 src/FloatTexture.cpp
+src/FloatFrameBuffer.cpp
 )
 
 target_link_libraries(pbr ${GLFW_STATIC_LIBRARIES} GLEW GLU GL ${GLEW_LIBRARIES} )

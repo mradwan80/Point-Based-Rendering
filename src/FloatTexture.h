@@ -11,6 +11,7 @@ class FloatTexture
     FloatTexture(int w, int h);
     GLuint GetHandle();
     void Bind();
+    void AttachImageTexture(int im);
     ~FloatTexture();
 
     static void Unbind();
