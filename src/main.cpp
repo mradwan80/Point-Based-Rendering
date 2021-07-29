@@ -214,7 +214,7 @@ int main()
 	
 		glEnable(GL_DEPTH_TEST);
 		glDisable(GL_BLEND);
-		
+
 		/*glUseProgram(VisibilitySh.GetHandle());
 		glBindFramebuffer(GL_FRAMEBUFFER, dptFbo); //set the fbo
 		glDrawBuffer(GL_COLOR_ATTACHMENT0);
@@ -239,6 +239,7 @@ int main()
 		glClearColor(1.0, 1.0, 0.7, 1.0);
 		glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 		//
+		
 
 		//Blending
 
@@ -249,6 +250,7 @@ int main()
 
 		
 		glUseProgram(BlendingSh.GetHandle());
+		glBindFramebuffer(GL_FRAMEBUFFER, accFbo); //set the fbo
 		glClearDepth(1.0);
 		glClearColor(0.0, 0.0, 0.0, 0.0);
 		glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
