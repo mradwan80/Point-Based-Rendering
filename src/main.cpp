@@ -3,6 +3,7 @@
 
 #include "main.h"
 #include "Shader.h"
+#include "FloatTexture.h"
 
 #include <iostream>
 #include <fstream>
@@ -157,9 +158,41 @@ int main()
 	Shader NormalizationSh("../shaders/pbrNormalization");
 	NormalizationSh.CompileShader();
 	
+	FloatTexture* dptTex = new FloatTexture(GlobalW, GlobalH);
+	FloatTexture* accTex = new FloatTexture(GlobalW, GlobalH);
+
+	GLuint dptFbo; glGenFramebuffers(1, &dptFbo);
+	glBindFramebuffer(GL_FRAMEBUFFER, dptFbo);
+	GLuint r0;	glGenTextures(1, &r0);
+	glBindTexture(GL_TEXTURE_2D, r0);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32, GlobalW, GlobalH, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, r0, 0);
+	glBindTexture(GL_TEXTURE_2D, 0);
+	//
+	dptTex->Bind();
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, dptTex->GetHandle(), 0);
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	///////
+	GLuint accFbo; glGenFramebuffers(1, &accFbo);
+	glBindFramebuffer(GL_FRAMEBUFFER, accFbo);
+	GLuint r1;	glGenTextures(1, &r1);
+	glBindTexture(GL_TEXTURE_2D, r1);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32, GlobalW, GlobalH, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, r0, 0);
+	glBindTexture(GL_TEXTURE_2D, 0);
+	//
+	accTex->Bind();
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, accTex->GetHandle(), 0);
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	//textures and fbos
-	GLuint dptFbo; glGenFramebuffers(1, &dptFbo);
+	/*GLuint dptFbo; glGenFramebuffers(1, &dptFbo);
 	glBindFramebuffer(GL_FRAMEBUFFER, dptFbo);
 	GLuint r0;	glGenTextures(1, &r0);
 	glBindTexture(GL_TEXTURE_2D, r0);
@@ -193,7 +226,7 @@ int main()
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, GlobalW, GlobalH, 0, GL_RGBA, GL_FLOAT, 0);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, accTex, 0);
 	glBindTexture(GL_TEXTURE_2D, 0);
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);*/
 	
 	
 	glfwSetKeyCallback(myWindow, key_callback);
@@ -205,18 +238,15 @@ int main()
 	//render loop//
 	while (!glfwWindowShouldClose(myWindow))
 	{
-		/*glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, dptTex);
-		glActiveTexture(GL_TEXTURE2);
-		glBindTexture(GL_TEXTURE_2D, accTex);*/
-		
-		//Visibility
+		//////////////
+		//Visibility//
+		//////////////
 	
 		glEnable(GL_DEPTH_TEST);
 		glDisable(GL_BLEND);
 
 		glUseProgram(VisibilitySh.GetHandle());
-		glBindFramebuffer(GL_FRAMEBUFFER, dptFbo); //set the fbo
+		glBindFramebuffer(GL_FRAMEBUFFER, dptFbo); //set the fbo//
 		glDrawBuffer(GL_COLOR_ATTACHMENT0);
 		glClearDepth(1.0);
 		glClearColor(1.0, 1.0, 1.0, 1.0);
@@ -232,8 +262,9 @@ int main()
 		glUniformMatrix4fv(glGetUniformLocation(VisibilitySh.GetHandle(), "pvm_matrix"), 1, GL_FALSE, glm::value_ptr(pvmMat));
 		glDrawArrays(GL_POINTS, 0, pnum);
 	
-
-		//Blending
+		////////////
+		//Blending//
+		////////////
 
 		glDisable(GL_DEPTH_TEST);
 		glEnable(GL_BLEND);
@@ -242,13 +273,12 @@ int main()
 
 		
 		glUseProgram(BlendingSh.GetHandle());
-		glBindFramebuffer(GL_FRAMEBUFFER, accFbo); //set the fbo
+		glBindFramebuffer(GL_FRAMEBUFFER, accFbo); //set the fbo//
 		glClearDepth(1.0);
 		glClearColor(0.0, 0.0, 0.0, 0.0);
 		glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 		glBindFramebuffer(GL_FRAMEBUFFER, accFbo);
 		glDrawBuffer(GL_COLOR_ATTACHMENT0);
-		glActiveTexture(GL_TEXTURE2);		glBindTexture(GL_TEXTURE_2D, accTex);
 		glBindVertexArray(vao);
 		glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0); 
@@ -258,16 +288,16 @@ int main()
 		glEnableVertexAttribArray(1);
 		glUniformMatrix4fv(glGetUniformLocation(BlendingSh.GetHandle(), "vm_matrix"), 1, GL_FALSE, glm::value_ptr(vmMat));
 		glUniformMatrix4fv(glGetUniformLocation(BlendingSh.GetHandle(), "pvm_matrix"), 1, GL_FALSE, glm::value_ptr(pvmMat));
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, dptTex);
+		//glActiveTexture(GL_TEXTURE1);		glBindTexture(GL_TEXTURE_2D, dptTex);
+		glActiveTexture(GL_TEXTURE1);		glBindTexture(GL_TEXTURE_2D, dptTex->GetHandle());
 		glDrawArrays(GL_POINTS, 0, pnum);
 
 		glDisable(GL_BLEND);
 
-		glActiveTexture(GL_TEXTURE2);		glBindTexture(GL_TEXTURE_2D, accTex);
-		glActiveTexture(GL_TEXTURE1);		glBindTexture(GL_TEXTURE_2D, dptTex);
+		/////////////////
+		//Normalization//
+		////////////////
 
-		//Normalization
 		glUseProgram(NormalizationSh.GetHandle());
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glClearDepth(1.0);
@@ -277,6 +307,8 @@ int main()
 		glBindBuffer(GL_ARRAY_BUFFER, vboRect[0]);
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0); 
 		glEnableVertexAttribArray(0);
+		//glActiveTexture(GL_TEXTURE2);		glBindTexture(GL_TEXTURE_2D, accTex);
+		glActiveTexture(GL_TEXTURE2);		glBindTexture(GL_TEXTURE_2D, accTex->GetHandle());
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
 
