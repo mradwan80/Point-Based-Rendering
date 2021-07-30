@@ -17,6 +17,15 @@
 #include <glm/gtx/transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+int CursorX=-1;
+int CursorY=-1;
+
+glm::mat4 ModelMat;
+glm::mat4 ViewMat;
+glm::mat4 ProjectionMat;
+glm::mat4 vmMat;
+glm::mat4 pvmMat;
+
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
 
 	
@@ -32,6 +41,62 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 			break;
 	}
 	
+}
+
+static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos) {
+
+	if(CursorX==-1 && CursorY==-1)
+	{
+		CursorX=xpos; CursorY=ypos;
+		return;
+	}	
+
+	bool lpressed = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS;
+	bool rpressed = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS;
+
+	if(lpressed)
+	{
+
+		float diffx = CursorX-xpos;
+		float diffy = CursorY-ypos;
+
+		if(abs(diffx)>=abs(diffy))
+		{
+			glm::mat4 delta = glm::rotate(diffx*0.01f,glm::vec3(0.0f,1.0f,0.0)); 
+			ViewMat = delta*ViewMat;
+		}
+		else
+		{
+			glm::mat4 delta = glm::translate(glm::vec3(0.0f, 0.0f, diffy/100)); 
+			ViewMat = delta*ViewMat;
+		}
+
+		vmMat = ViewMat*ModelMat;
+		pvmMat = ProjectionMat*ViewMat*ModelMat;
+
+		CursorX=xpos;
+		CursorY=ypos;
+
+	}
+	else if(rpressed)
+	{
+		
+	}
+	
+
+}
+
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
+
+	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
+	{
+		double xpos, ypos;
+		glfwGetCursorPos(window, &xpos, &ypos);
+
+		CursorX=xpos;
+		CursorY=ypos;
+	}
+
 }
 
 int main()
@@ -71,9 +136,10 @@ int main()
 	vector<float>Rads;	//constant for now//
 	
 	//read data from file//
-	//std::ifstream inputfile("../models/three_bunnies.xyz", std::ios_base::in);
-	std::ifstream inputfile("../models/conference-room.xyz", std::ios_base::in);
-	float x,y,z,r,g,b,o;
+	//std::ifstream inputfile("../models/Three-rooms.xyz", std::ios_base::in);
+	//std::ifstream inputfile("../models/Two-rooms.xyz", std::ios_base::in);
+	std::ifstream inputfile("../models/Conference-room.xyz", std::ios_base::in);
+	float x,y,z,r,g,b;
 	float maxx=std::numeric_limits<float>::lowest();
 	float maxy=std::numeric_limits<float>::lowest();
 	float maxz=std::numeric_limits<float>::lowest();
@@ -82,7 +148,7 @@ int main()
 	float minz=std::numeric_limits<float>::max();
 	while(!inputfile.eof())
 	{
-		inputfile>>x>>y>>z>>r>>g>>b>>o;
+		inputfile>>x>>y>>z>>r>>g>>b;
 		
 		//Coords.push_back(pointCoords(x,y,z));
 		pointCoords p; p.x=x;p.y=y;p.z=z;
@@ -138,7 +204,7 @@ int main()
 	glBindVertexArray(0);
 
 	//matrices//
-	glm::mat4 ModelMat = glm::translate(glm::vec3(0,0,0));
+	/*glm::mat4 ModelMat = glm::translate(glm::vec3(0,0,0));
 	glm::mat4 ViewMat = glm::translate(glm::vec3(-midx,-midy,-(minz+1.95*(maxz-midz)))); //for conference room
 	//glm::mat4 ViewMat = glm::translate(glm::vec3(-midx,-midy,-(minz+3*(maxz-midz))));	//for 3 bunnies
 	float fov=70.0;
@@ -146,7 +212,16 @@ int main()
 	float Far = 7*(maxz-minz);
 	glm::mat4 ProjectionMat =	glm::perspective(fov, float(GlobalW)/float(GlobalH) , Near, Far);
 	glm::mat4 vmMat = ViewMat*ModelMat;
-	glm::mat4 pvmMat = ProjectionMat*ViewMat*ModelMat;
+	glm::mat4 pvmMat = ProjectionMat*ViewMat*ModelMat;*/
+
+	ModelMat = glm::translate(glm::vec3(0,0,0));
+	ViewMat = glm::translate(glm::vec3(-midx,-midy,-(minz+1.95*(maxz-midz)))); //for conference room
+	float fov=70.0;
+	float Near = 0.01;
+	float Far = 7*(maxz-minz);
+	ProjectionMat =	glm::perspective(fov, float(GlobalW)/float(GlobalH) , Near, Far);
+	vmMat = ViewMat*ModelMat;
+	pvmMat = ProjectionMat*ViewMat*ModelMat;
 
 
 	//read shaders//
@@ -177,6 +252,8 @@ int main()
 	FloatFrameBuffer::Unbind();
 
 	glfwSetKeyCallback(myWindow, key_callback);
+	glfwSetCursorPosCallback(myWindow, cursor_position_callback);
+	glfwSetMouseButtonCallback(myWindow, mouse_button_callback);
 
 	
 	glEnable(GL_PROGRAM_POINT_SIZE);
