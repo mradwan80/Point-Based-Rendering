@@ -62,7 +62,7 @@ static void cursor_position_callback(GLFWwindow* window, double xpos, double ypo
 
 		if(abs(diffx)>=abs(diffy))
 		{
-			glm::mat4 delta = glm::rotate(diffx*0.01f,glm::vec3(0.0f,1.0f,0.0)); 
+			glm::mat4 delta = glm::rotate(-diffx*0.01f,glm::vec3(0.0f,1.0f,0.0)); 
 			ViewMat = delta*ViewMat;
 		}
 		else
