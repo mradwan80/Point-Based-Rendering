@@ -17,6 +17,9 @@
 #include <glm/gtx/transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include <pcl/io/pcd_io.h>
+#include <pcl/point_types.h>
+
 int CursorX=-1;
 int CursorY=-1;
 
@@ -135,10 +138,17 @@ int main()
 	vector<pointColor> Colors;
 	vector<float>Rads;	//constant for now//
 	
-	//read data from file//
-	//std::ifstream inputfile("../models/Three-rooms.xyz", std::ios_base::in);
-	//std::ifstream inputfile("../models/Two-rooms.xyz", std::ios_base::in);
-	std::ifstream inputfile("../models/Conference-room.xyz", std::ios_base::in);
+	std::string inputfile = "../models/Conference-room.pcd";
+
+    pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud (new pcl::PointCloud<pcl::PointXYZRGB>);
+    if(pcl::io::loadPCDFile<pcl::PointXYZRGB> (inputfile, *cloud) == -1) // load the file
+    {
+        PCL_ERROR ("Couldn't read file\n");
+        return -1;
+    }
+    
+	int pnum=cloud->size ();	//points number//
+	std::cout << "points: " << pnum <<std::endl;
 	float x,y,z,r,g,b;
 	float maxx=std::numeric_limits<float>::lowest();
 	float maxy=std::numeric_limits<float>::lowest();
@@ -146,16 +156,21 @@ int main()
 	float minx=std::numeric_limits<float>::max();
 	float miny=std::numeric_limits<float>::max();
 	float minz=std::numeric_limits<float>::max();
-	while(!inputfile.eof())
+	for(int i=0;i<cloud->size();i++)
 	{
-		inputfile>>x>>y>>z>>r>>g>>b;
+		x=cloud->at(i).x;
+		y=cloud->at(i).y;
+		z=cloud->at(i).z;
+		r=(float)cloud->at(i).r/255;
+		g=(float)cloud->at(i).g/255;
+		b=(float)cloud->at(i).b/255;
 		
 		//Coords.push_back(pointCoords(x,y,z));
 		pointCoords p; p.x=x;p.y=y;p.z=z;
 		Coords.push_back(p);
 
 		//Colors.push_back(pointColor(r,g,b));
-		pointColor c;c.r=r/255;c.g=g/255;c.b=b/255;
+		pointColor c;c.r=r;c.g=g;c.b=b;
 		Colors.push_back(c);
 
 		Rads.push_back(0.05);
@@ -167,7 +182,7 @@ int main()
 		if(y>maxy)	maxy=y;
 		if(z>maxz)	maxz=z;
 	}
-	int pnum=Coords.size();	//points number//
+
 	float midx=(minx+maxx)/2;
 	float midy=(miny+maxy)/2;
 	float midz=(minz+maxz)/2;
