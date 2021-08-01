@@ -17,8 +17,22 @@
 #include <glm/gtx/transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+//PCL
 #include <pcl/io/pcd_io.h>
 #include <pcl/point_types.h>
+
+//CGAL
+#include <CGAL/Simple_cartesian.h>
+#include <CGAL/point_generators_3.h>
+#include <CGAL/Orthogonal_k_neighbor_search.h>
+#include <CGAL/Search_traits_3.h>
+#include <list>
+#include <cmath>
+typedef CGAL::Simple_cartesian<double> K;
+typedef K::Point_3 Point_d;
+typedef CGAL::Search_traits_3<K> TreeTraits;
+typedef CGAL::Orthogonal_k_neighbor_search<TreeTraits> Neighbor_search;
+typedef Neighbor_search::Tree Tree;
 
 int CursorX=-1;
 int CursorY=-1;
@@ -173,7 +187,7 @@ int main()
 		pointColor c;c.r=r;c.g=g;c.b=b;
 		Colors.push_back(c);
 
-		Rads.push_back(0.05);
+		//Rads.push_back(0.05);
 
 		if(x<minx)	minx=x;
 		if(y<miny)	miny=y;
@@ -182,6 +196,23 @@ int main()
 		if(y>maxy)	maxy=y;
 		if(z>maxz)	maxz=z;
 	}
+
+	//compute rads using kNN search
+	int KK=8;
+	std::list<Point_d> points;
+	for(int p=0;p<pnum;p++)
+		points.push_back(Point_d(Coords[p].x,Coords[p].y,Coords[p].z));
+	Tree tree(points.begin(), points.end());
+    for(int p=0;p<pnum;p++)
+	{
+        Point_d query(Coords[p].x,Coords[p].y,Coords[p].z);
+        Neighbor_search search(tree, query, KK);
+		Neighbor_search::iterator it = search.begin();
+		it+=7;
+		Rads.push_back(it->second * 2.0/3);
+    }
+	points.clear();
+
 
 	float midx=(minx+maxx)/2;
 	float midy=(miny+maxy)/2;
