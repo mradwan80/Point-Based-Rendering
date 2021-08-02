@@ -187,8 +187,6 @@ int main()
 		pointColor c;c.r=r;c.g=g;c.b=b;
 		Colors.push_back(c);
 
-		//Rads.push_back(0.05);
-
 		if(x<minx)	minx=x;
 		if(y<miny)	miny=y;
 		if(z<minz)	minz=z;
@@ -198,7 +196,7 @@ int main()
 	}
 
 	//compute rads using kNN search
-	int KK=8;
+	int KK=16;
 	std::list<Point_d> points;
 	for(int p=0;p<pnum;p++)
 		points.push_back(Point_d(Coords[p].x,Coords[p].y,Coords[p].z));
@@ -208,8 +206,10 @@ int main()
         Point_d query(Coords[p].x,Coords[p].y,Coords[p].z);
         Neighbor_search search(tree, query, KK);
 		Neighbor_search::iterator it = search.begin();
-		it+=7;
-		Rads.push_back(it->second * 2.0/3);
+		it+=KK-1;
+		//Rads.push_back(it->second * 2.0/3);
+		//Rads.push_back(it->second * 3.0/2);
+		Rads.push_back(it->second * 5);
     }
 	points.clear();
 
@@ -230,7 +230,8 @@ int main()
 	glBufferData(GL_ARRAY_BUFFER, pnum * 3 * sizeof(GLfloat), &Coords[0], GL_DYNAMIC_DRAW_ARB);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
 	glBufferData(GL_ARRAY_BUFFER, pnum * 3 * sizeof(GLfloat), &Colors[0], GL_DYNAMIC_DRAW_ARB);
-	//send rad !!!
+	glBindBuffer(GL_ARRAY_BUFFER, vbo[2]);
+	glBufferData(GL_ARRAY_BUFFER, pnum * 1 * sizeof(GLfloat), &Rads[0], GL_DYNAMIC_DRAW_ARB); 
 	//glBindBuffer(GL_ARRAY_BUFFER, vbo[3]);
 	//glBufferData(GL_ARRAY_BUFFER, pnum * 1 * sizeof(GLint), &ObjectIds[0], GL_DYNAMIC_DRAW_ARB);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -249,22 +250,11 @@ int main()
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 
-	//matrices//
-	/*glm::mat4 ModelMat = glm::translate(glm::vec3(0,0,0));
-	glm::mat4 ViewMat = glm::translate(glm::vec3(-midx,-midy,-(minz+1.95*(maxz-midz)))); //for conference room
-	//glm::mat4 ViewMat = glm::translate(glm::vec3(-midx,-midy,-(minz+3*(maxz-midz))));	//for 3 bunnies
-	float fov=70.0;
-	float Near = 0.01;
-	float Far = 7*(maxz-minz);
-	glm::mat4 ProjectionMat =	glm::perspective(fov, float(GlobalW)/float(GlobalH) , Near, Far);
-	glm::mat4 vmMat = ViewMat*ModelMat;
-	glm::mat4 pvmMat = ProjectionMat*ViewMat*ModelMat;*/
-
 	ModelMat = glm::translate(glm::vec3(0,0,0));
 	ViewMat = glm::translate(glm::vec3(-midx,-midy,-(minz+1.95*(maxz-midz)))); //for conference room
-	float fov=70.0;
-	float Near = 0.01;
-	float Far = 7*(maxz-minz);
+	float fov=45.0;
+	float Near = 0.1;
+	float Far = 4*(maxz-minz);
 	ProjectionMat =	glm::perspective(fov, float(GlobalW)/float(GlobalH) , Near, Far);
 	vmMat = ViewMat*ModelMat;
 	pvmMat = ProjectionMat*ViewMat*ModelMat;
@@ -328,6 +318,9 @@ int main()
 		glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
 		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0); 
 		glEnableVertexAttribArray(1);
+		glBindBuffer(GL_ARRAY_BUFFER, vbo[2]);
+		glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, 0, 0); 
+		glEnableVertexAttribArray(2);
 		glUniformMatrix4fv(glGetUniformLocation(VisibilitySh.GetHandle(), "vm_matrix"), 1, GL_FALSE, glm::value_ptr(vmMat));
 		glUniformMatrix4fv(glGetUniformLocation(VisibilitySh.GetHandle(), "pvm_matrix"), 1, GL_FALSE, glm::value_ptr(pvmMat));
 		glDrawArrays(GL_POINTS, 0, pnum);
@@ -355,6 +348,9 @@ int main()
 		glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
 		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0); 
 		glEnableVertexAttribArray(1);
+		glBindBuffer(GL_ARRAY_BUFFER, vbo[2]);
+		glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, 0, 0); 
+		glEnableVertexAttribArray(2);
 		glUniformMatrix4fv(glGetUniformLocation(BlendingSh.GetHandle(), "vm_matrix"), 1, GL_FALSE, glm::value_ptr(vmMat));
 		glUniformMatrix4fv(glGetUniformLocation(BlendingSh.GetHandle(), "pvm_matrix"), 1, GL_FALSE, glm::value_ptr(pvmMat));
 		dptTex->AttachImageTexture(1);
