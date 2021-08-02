@@ -48,6 +48,10 @@ and also on WSL2 (Windows Subsystem for Linux 2), with the following specificati
 * GeForce GTX 950M
 * VcXsrv
 
+********************************************************************************
+
+## References
+
 [1] GUENNEBAUD G.. PAULIN M.: Efficient screen space approach for hardware accelerated surfel renderjng. In Pmc. of Vuion, Modeling, and Ksualizarim 03 (2003). 
 
 [2] BOTSCH M., HORNUNG A., ZWICKER M., KOBBELT L.: High-quality surface splatting on today’s gpus. In Point-Based Graphics, 2005. Eurographics/IEEE VGTC Symposium Proceedings (june 2005), pp. 17 – 141.
